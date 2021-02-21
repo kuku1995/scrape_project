@@ -1,0 +1,13 @@
+Need Python installed first.
+
+Pip installs required to successfully run our files are:
+
+
+Pip install requests
+
+Pip install beautifulsoup4
+
+Pip install html5lib
+
+Pip install lxml
+
