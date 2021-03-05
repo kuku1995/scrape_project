@@ -1,13 +1,11 @@
-Need Python installed first.
 
-Pip installs required to successfully run our files are:
+beautifulsoup4==4.8.2
+html5lib==1.0.1
+lxml==4.5.0
+numpy==1.18.1
+pandas==1.0.1
+requests==2.23.0
+tqdm==4.43.0
+urllib3==1.25.8
 
-
-Pip install requests
-
-Pip install beautifulsoup4
-
-Pip install html5lib
-
-Pip install lxml
 
