@@ -22,7 +22,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install requests, beautifulsoup4, html5lib, lxml, re, logging, pymysql
 
-```bash
 Use pip install -r requirements.txt to install all required packages.
 
 ### Usage
@@ -65,7 +64,7 @@ The output will print all the movies in this format:
 61 --> Joker [2019] -- IMDB Rating: 8.37 -- Number of voters: 956,728 -- {Director: Todd Phillips, Starring: Joaquin Phoenix, Robert De Niro }
 
 
-## Running program from command line
+### Running program from command line
 Need to run IMDb_Scraper.py from the directory it is located in (the folder of all the project's files) in your local computer.
 Also, need to run the file along with corresponding arguments to match the information you would like to scrape and print to screen.
 
@@ -78,15 +77,13 @@ If you would like to see both movie titles and their ratings on the site:
 These are the available columns to select from:
 ["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director", "main_actors"]
 
-## Authors
+### Authors
 
 * **Karishma Shah**
 * **Lior Nattiv**
 
-## Project status
+### Project status
 In progress
 
-<p>&nbsp;</p>                  
-
-## Database ERD
+### Database ERD
 ![Database ERD](https://raw.githubusercontent.com/kuku1995/scrape_project/main/IMDb_ERD.PNG?raw=true)
