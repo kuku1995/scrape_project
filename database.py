@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS `Movies` (
   `duration` int,
   `description` varchar(255),
   `rel_date` varchar(4)
+  'country' VARCHAR(100)
 );
 
 

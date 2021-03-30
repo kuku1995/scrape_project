@@ -1,9 +1,11 @@
 from downloader import Downloader
+import re
 from parser import Parser
 import logging
 import argparse
 import pymysql.cursors
 from pymysql.constants import CLIENT
+
 
 logging.basicConfig(filename='imdb_log_file.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
@@ -12,7 +14,7 @@ logging.basicConfig(filename='imdb_log_file.log',
 _WEBSITE = 'http://www.imdb.com/chart/top'
 
 
-def scraper(column_names):
+def scraper(column_names, username, password, host):
     """
     This function creates a Downloader class object, which gets access to IMDb, parses
     the site's content and prints the requested columns by the user to std output.
@@ -30,11 +32,8 @@ def scraper(column_names):
         print(row.format(column_names))
     logging.info('Requested data successfully presented to user')
 
-    # Connect to the database
-    username = 'root'
-    password = 'root'
-    host = 'localhost'
-    con = pymysql.connect(host=host, user=username, password=password, db='IMDBScrape',
+    # connect to the database
+    con = pymysql.connect(user=username, password=password, host=host, db='IMDBScrape',
                           client_flag=CLIENT.MULTI_STATEMENTS,
                           cursorclass=pymysql.cursors.DictCursor)
 
@@ -48,7 +47,8 @@ def scraper(column_names):
         rating = movie.rating
         director = movie.director
         number_of_votes = movie.number_of_votes
-        main_actors = movie.main_actors.split(',')
+        if movie.main_actors is not None:
+            main_actors = movie.main_actors.split(',')
 
         to_movies_table.append((movie_title, year))
         to_ratings_table.append((rating, number_of_votes))
@@ -73,10 +73,13 @@ def main():
     """
     parser = argparse.ArgumentParser(prog='IMDb_Scraper', description='Query the IMDb site')
     parser.add_argument("-c", "--column_name", nargs='+', help='Column Names',
-                        choices=["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director",
-                                 "main_actors"], required=True)
+                            choices=["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director",
+                                     "main_actors"], required=True)
+    parser.add_argument("-user", "--username", help='Username', required=True)
+    parser.add_argument("-pass", "--password", help='Password', required=True)
+    parser.add_argument("-host", "--host", help='Host', required=True)
     args = parser.parse_args()
-    scraper(args.column_name)
+    scraper(args.column_name, args.username, args.password, args.host)
 
 
 if __name__ == '__main__':

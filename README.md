@@ -1,43 +1,29 @@
 # __IMDb Scraper Project__
 ![imdb logo](https://m.media-amazon.com/images/G/01/IMDb/BG_rectangle._CB1509060989_SY230_SX307_AL_.png)
 
-## What is IMDb
+### What is IMDb
 
 The world's most popular and biggest online database of information related mostly
 to films and TV series.
 
-# Project purpose
+### Project purpose
 Scarping movie relaed data from the IMDb website in order to analyze different variables which affect the movie rating on the site.
 
-# How do we do it
+### How do we do it
 We used the requests and BeautifulSoup modules in python in order to access the top 250 IMDb chart page's information, and selected the html tags relevant for the data we wanted.
 We took the top 250 movies page for start and gathered different pieces of information for each movie, such as: Title, crew(director and star actors), the overall rating for each movie, its rank in the chart, the number of voters, and the year the movie was released. (More pending data will be added)
 After doing so, we had a list of all 250 films, and ran a for loop on all movies to extract the relevant information for each film. Running the code gives an output of all the 250 films, with each film's relevant data on the same line (year, stars, etc).
 
-## Getting Started
+### Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install requests, beautifulsoup4, html5lib, lxml
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install requests, beautifulsoup4, html5lib, lxml, re, logging, pymysql
 
 ```bash
-pip install requests
-```
-
-```bash
-pip install beautifulsoup4
-```
-
-```bash
-pip install html5lib
-```
-
-```bash
-pip install lxml
-```
-
+Use pip install -r requirements.txt to install all required packages.
 
 ### Usage
 
@@ -78,6 +64,20 @@ Each movie in the list is constrcuted as a dictionary with all its relevant info
 The output will print all the movies in this format:
 61 --> Joker [2019] -- IMDB Rating: 8.37 -- Number of voters: 956,728 -- {Director: Todd Phillips, Starring: Joaquin Phoenix, Robert De Niro }
 
+
+## Running program from command line
+Need to run IMDb_Scraper.py from the directory it is located in (the folder of all the project's files) in your local computer.
+Also, need to run the file along with corresponding arguments to match the information you would like to scrape and print to screen.
+
+For example, if you want to see all the movie title, your syntax should be:
+[C:\ local folder path ] > python.exe IMDb_Scraper.py movie_title
+
+If you would like to see both movie titles and their ratings on the site:
+[C:\ local folder path ] > python.exe IMDb_Scraper.py movie_title, rating
+
+These are the available columns to select from:
+["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director", "main_actors"]
+
 ## Authors
 
 * **Karishma Shah**
@@ -85,3 +85,8 @@ The output will print all the movies in this format:
 
 ## Project status
 In progress
+
+<p>&nbsp;</p>                  
+
+## Database ERD
+![Database ERD](https://raw.githubusercontent.com/kuku1995/scrape_project/main/IMDb_ERD.PNG?raw=true)
