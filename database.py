@@ -1,16 +1,14 @@
 import logging
 import pymysql.cursors
 from pymysql.constants import CLIENT
+import config as cfg
 
 logging.basicConfig(filename='imdb_log_file.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
                     level=logging.INFO)
 
 # Connecting to mysql
-username = 'root'
-password = 'luli1402'
-host = 'localhost'
-con = pymysql.connect(host=host, user=username, password=password, client_flag=CLIENT.MULTI_STATEMENTS,
+con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
 
 # Creating the database
@@ -30,7 +28,7 @@ con.close()
 print('Successfully created IMDBScrape database')
 logging.info('Successfully created IMDBScrape database')
 
-con = pymysql.connect(host=host, user=username, password=password, db='IMDBScrape', client_flag=CLIENT.MULTI_STATEMENTS,
+con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db='IMDBScrape', client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
 # Creating the database tables
 cur = con.cursor()

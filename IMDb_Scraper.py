@@ -4,29 +4,25 @@ import logging
 import argparse
 import pymysql.cursors
 from pymysql.constants import CLIENT
+import config as cfg
+
 
 logging.basicConfig(filename='imdb_log_file.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
                     level=logging.INFO)
 
-# Website URL
-_WEBSITE = 'http://www.imdb.com/chart/top'
 
-
-def scraper(column_names, username, password, host):
+def scraper(column_names):
     """
     This function creates a Downloader class object, which gets access to IMDb, parses
     the site's content and prints the requested columns by the user to std output.
     :param column_names: IMDb columns requests by user
-    :param username for mysql connection
-    :param password for mysql connection
-    :param host for mysql connection
     :return: Movies data requests by user
     """
 
     downloader = Downloader()
 
-    contents = downloader.download(_WEBSITE)
+    contents = downloader.download(cfg._WEBSITE)
 
     parser = Parser(contents)
     data = parser.parse_contents(column_names)
@@ -35,7 +31,7 @@ def scraper(column_names, username, password, host):
     logging.info('Requested data successfully presented to user')
 
     # connect to the database
-    con = pymysql.connect(user=username, password=password, host=host, db='IMDBScrape',
+    con = pymysql.connect(user=cfg.USERNAME, password=cfg.PASSWORD, host=cfg.HOST, db='IMDBScrape',
                           client_flag=CLIENT.MULTI_STATEMENTS,
                           cursorclass=pymysql.cursors.DictCursor)
 
@@ -55,7 +51,7 @@ def scraper(column_names, username, password, host):
         imdb_chart_rank = movie.imdb_chart_rank
         rating = movie.rating
         number_of_votes = movie.number_of_votes
-        #omdb_metascore = movie.omdb_metascore
+        # omdb_metascore = movie.omdb_metascore
 
         director = movie.director
 
@@ -95,11 +91,8 @@ def main():
                                  "main_actors", "language", "country", "awards", "duration",
                                  "writer", "box_office", "omdb_metascore", "production", "genre"],
                         required=True)
-    parser.add_argument("-user", "--username", help='Username', required=True)
-    parser.add_argument("-pass", "--password", help='Password', required=True)
-    parser.add_argument("-host", "--host", help='Host', required=True)
     args = parser.parse_args()
-    scraper(args.column_name, args.username, args.password, args.host)
+    scraper(args.column_name)
 
 
 if __name__ == '__main__':
