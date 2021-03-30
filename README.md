@@ -7,7 +7,7 @@ The world's most popular and biggest online database of information related most
 to films and TV series.
 
 ### Project purpose
-Scarping movie relaed data from the IMDb website in order to analyze different variables which affect the movie rating on the site.
+Scraping movie relaed data from the IMDb website in order to analyze different variables which affect the movie rating on the site.
 
 ### How do we do it
 We used the requests and BeautifulSoup modules in python in order to access the top 250 IMDb chart page's information, and selected the html tags relevant for the data we wanted.
