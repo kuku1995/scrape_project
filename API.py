@@ -1,23 +1,33 @@
 import logging
 import requests
-import re
-from pprint import PrettyPrinter
-pp = PrettyPrinter()
+logging.basicConfig(filename='imdb_log_file.log',
+                    format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
+                    level=logging.INFO)
 
-apiKey = 'b1e6e01b'
+# API Key for OMDb:
+API_KEY = 'b1e6e01b'
+API_DATA_URL = 'http://www.omdbapi.com/?apikey=' + API_KEY
 
-#Fetch Movie Data
 
-data_URL = 'http://www.omdbapi.com/?apikey='+apiKey
-year = ''
-movieTitle = ''
-params = {
-    't': movieTitle,
-    'type': 'movie',
-    'y': year,
-}
-response = requests.get(data_URL, params=params).json()
-pp.pprint(response.items())
-#pp.pprint(response['Title'])
-#pp.pprint(response(Actors))
-#pp.pprint(response.json()['items'])
+class APIException(Exception):
+    """
+    Docstring
+    """
+    pass
+# Fetch Movie Data
+
+
+class ApiQuery:
+    """
+    Docstring
+    """
+    def query(imdb_movie_id):
+        try:
+            params = {
+                'i': imdb_movie_id,
+                'type': 'movie',
+                'plot': 'full'
+            }
+            response = requests.get(API_DATA_URL, params=params).json()
+        except:
+

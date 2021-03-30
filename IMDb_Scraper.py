@@ -1,16 +1,15 @@
 from downloader import Downloader
-import re
 from parser import Parser
 import logging
 import argparse
 import pymysql.cursors
 from pymysql.constants import CLIENT
 
-
 logging.basicConfig(filename='imdb_log_file.log',
                     format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
                     level=logging.INFO)
 
+# Website URL
 _WEBSITE = 'http://www.imdb.com/chart/top'
 
 
@@ -19,6 +18,9 @@ def scraper(column_names, username, password, host):
     This function creates a Downloader class object, which gets access to IMDb, parses
     the site's content and prints the requested columns by the user to std output.
     :param column_names: IMDb columns requests by user
+    :param username for mysql connection
+    :param password for mysql connection
+    :param host for mysql connection
     :return: Movies data requests by user
     """
 
@@ -37,33 +39,49 @@ def scraper(column_names, username, password, host):
                           client_flag=CLIENT.MULTI_STATEMENTS,
                           cursorclass=pymysql.cursors.DictCursor)
 
-    to_movies_table = []
-    to_ratings_table = []
+    movies_tb_insert_list = []
+    ratings_tb_insert_list = []
     # to_person_table = []
     for movie in data:
-        imdb_chart_rank = movie.imdb_chart_rank
-        movie_title = movie.movie_title
+        title = movie.movie_title
+        duration = int(movie.duration[:3])
         year = movie.year
+        country = movie.country
+        language = movie.language
+        awards = movie.awards
+        box_office = movie.box_office
+        production = movie.production
+
+        imdb_chart_rank = movie.imdb_chart_rank
         rating = movie.rating
-        director = movie.director
         number_of_votes = movie.number_of_votes
+        omdb_metascore = movie.omdb_metascore
+
+        director = movie.director
+
         if movie.main_actors is not None:
             main_actors = movie.main_actors.split(',')
 
-        to_movies_table.append((movie_title, year))
-        to_ratings_table.append((rating, number_of_votes))
+        movies_tb_insert_list.append((title, duration, year, awards, box_office))
+        ratings_tb_insert_list.append((imdb_chart_rank, rating, number_of_votes, omdb_metascore))
         # to_person_table.append(main_actors)
 
-    movies_table_insert_statement = "INSERT INTO Movies (name, rel_date) VALUES (%s, %s);"
-    ratings_table_insert_statement = "INSERT INTO Ratings (no_of_stars, no_of_votes) VALUES (%s, %s);"
-    # person_table_insert_statement = "INSERT INTO Person (name) VALUES (%s);"  (this
-    # part not ready yet)
+    movies_tb_insert_statement = "INSERT INTO Movies (name, duration, year_released, awards, box_office) VALUES (%s, %s, %s, %s, %s);"
+    ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) VALUES (%s, %s, %s, %s);"
+    # person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
 
     cur = con.cursor()
-    cur.executemany(movies_table_insert_statement, to_movies_table)
-    cur.executemany(ratings_table_insert_statement, to_ratings_table)
-    # cur.executemany(person_table_insert_statement, to_person_table)
-    # con.commit()
+    try:
+        cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
+        # cur.executemany(ratings_table_insert_statement, ratings_table_insert_statement)
+        # cur.executemany(person_table_insert_statement, to_person_table)
+        con.commit()
+    except pymysql.err.IntegrityError:
+        logging.error(f'Duplicate entries given to DB')
+        raise Exception("Did not add duplicated values to DB")
+    else:
+        print('Data successfully added to IMDbScrape DB')
+        logging.info('Data successfully added to IMDBScrape DB')
 
 
 def main():
@@ -73,8 +91,10 @@ def main():
     """
     parser = argparse.ArgumentParser(prog='IMDb_Scraper', description='Query the IMDb site')
     parser.add_argument("-c", "--column_name", nargs='+', help='Column Names',
-                            choices=["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director",
-                                     "main_actors"], required=True)
+                        choices=["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director",
+                                 "main_actors", "imdb_movie_id", "language", "country", "awards", "duration",
+                                 "writer", "box_office", "omdb_metascore", "poster", "production", "genre"],
+                        required=True)
     parser.add_argument("-user", "--username", help='Username', required=True)
     parser.add_argument("-pass", "--password", help='Password', required=True)
     parser.add_argument("-host", "--host", help='Host', required=True)

@@ -6,7 +6,7 @@ logging.basicConfig(filename='imdb_log_file.log',
 
 
 class DownloadException(Exception):
-    """we use
+    """
     Created for raising error if page was not found when requesting access
     """
     pass
@@ -20,7 +20,7 @@ class Downloader:
     @staticmethod
     def download(url):
         """
-        Created for requesting access to the IMDb site and extracting textual content
+        Requesting access to the IMDb site and extracting textual content
         """
         try:
             # Requesting access to site
