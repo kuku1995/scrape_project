@@ -35,6 +35,8 @@ print(ACCESS) --> <Response [200]- means access to website data is approved
 SOUP = BeautifulSoup(ACCESS.text, 'lxml') - # parse the data from the website
 FILMS = SOUP.select('td.titleColumn') - # returns container with film info
 
+The config.py file contains a list of all the constant variables, these are then called within the files.
+
 ### Creating the Database
 Make sure you install pymysql package
 Run the database.py file in the directory, with your username and password to your localhost.
