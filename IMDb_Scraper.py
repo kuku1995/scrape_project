@@ -55,7 +55,7 @@ def scraper(column_names, username, password, host):
         imdb_chart_rank = movie.imdb_chart_rank
         rating = movie.rating
         number_of_votes = movie.number_of_votes
-        omdb_metascore = movie.omdb_metascore
+        #omdb_metascore = movie.omdb_metascore
 
         director = movie.director
 
@@ -63,17 +63,17 @@ def scraper(column_names, username, password, host):
             main_actors = movie.main_actors.split(',')
 
         movies_tb_insert_list.append((title, duration, year, awards, box_office))
-        ratings_tb_insert_list.append((imdb_chart_rank, rating, number_of_votes, omdb_metascore))
+        ratings_tb_insert_list.append((imdb_chart_rank, rating, number_of_votes))
         # to_person_table.append(main_actors)
 
     movies_tb_insert_statement = "INSERT INTO Movies (name, duration, year_released, awards, box_office) VALUES (%s, %s, %s, %s, %s);"
-    ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) VALUES (%s, %s, %s, %s);"
+    ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes) VALUES (%s, %s, %s);"
     # person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
 
     cur = con.cursor()
     try:
         cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
-        # cur.executemany(ratings_table_insert_statement, ratings_table_insert_statement)
+        cur.executemany(ratings_tb_insert_statement, ratings_tb_insert_list)
         # cur.executemany(person_table_insert_statement, to_person_table)
         con.commit()
     except pymysql.err.IntegrityError:
@@ -92,8 +92,8 @@ def main():
     parser = argparse.ArgumentParser(prog='IMDb_Scraper', description='Query the IMDb site')
     parser.add_argument("-c", "--column_name", nargs='+', help='Column Names',
                         choices=["imdb_chart_rank", "movie_title", "year", "rating", "number_of_votes", "director",
-                                 "main_actors", "imdb_movie_id", "language", "country", "awards", "duration",
-                                 "writer", "box_office", "omdb_metascore", "poster", "production", "genre"],
+                                 "main_actors", "language", "country", "awards", "duration",
+                                 "writer", "box_office", "omdb_metascore", "production", "genre"],
                         required=True)
     parser.add_argument("-user", "--username", help='Username', required=True)
     parser.add_argument("-pass", "--password", help='Password', required=True)

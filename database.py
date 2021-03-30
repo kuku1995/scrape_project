@@ -8,7 +8,7 @@ logging.basicConfig(filename='imdb_log_file.log',
 
 # Connecting to mysql
 username = 'root'
-password = 'root'
+password = 'luli1402'
 host = 'localhost'
 con = pymysql.connect(host=host, user=username, password=password, client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
@@ -88,10 +88,10 @@ CREATE TABLE IF NOT EXISTS `Reviewer` (
 CREATE TABLE IF NOT EXISTS `Ratings` (
   `movie_ID` int,
   `reviewer_id` int,
-  `num_of_votes` int,
+  `num_of_votes` varchar(50),
   `imdb_rating` float,
   `imdb_chart_rank` int,
-  `omdb_metascore` float
+  `omdb_metascore` int
 );
 
 ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `Genres` (`genre_id`);
