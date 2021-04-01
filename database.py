@@ -81,11 +81,11 @@ CREATE TABLE IF NOT EXISTS `Ratings` (
   `omdb_metascore` varchar(50)
 );
 ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `Genres` (`genre_id`);
-ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
+ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
 ALTER TABLE `Ratings` ADD FOREIGN KEY (`reviewer_id`) REFERENCES `Reviewer` (`reviewer_id`);
-ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
+ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
 ALTER TABLE `Person_role` ADD FOREIGN KEY (`person_id`) REFERENCES `Person` (`person_id`);
-ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
+ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
 ;
 """
 
