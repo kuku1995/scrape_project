@@ -1,8 +1,11 @@
 # Website url
-_WEBSITE = 'http://www.imdb.com/chart/top'
+_TOP_MOVIE_CHART = 'http://www.imdb.com/chart/top'
+_MOVIE_METER = 'https://www.imdb.com/chart/moviemeter'
+_TOP_TV = 'https://www.imdb.com/chart/toptv'
 USERNAME = 'root'
-PASSWORD = 'luli1402'
+PASSWORD = 'root'
 HOST = 'localhost'
+DATABASE = 'IMDbScrape'
 
 # API Key for OMDb:
 API_KEY = 'b1e6e01b'

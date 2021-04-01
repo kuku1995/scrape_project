@@ -15,7 +15,7 @@ con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, c
 cur = con.cursor()
 
 q = """
-CREATE DATABASE IF NOT EXISTS IMDBScrape20;
+CREATE DATABASE IF NOT EXISTS IMDBScrape;
  """
 
 cur.execute(q)
@@ -26,20 +26,21 @@ con.close()
 print('Successfully created IMDBScrape database')
 logging.info('Successfully created IMDBScrape database')
 
-con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db='IMDBScrape20', client_flag=CLIENT.MULTI_STATEMENTS,
+con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db=cfg.DATABASE, client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
 # Creating the database tables
 cur = con.cursor()
 
 q1 = """
-CREATE TABLE IF NOT EXISTS `Movies` (
-  `movie_ID` int PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `Movies&TV` (
+  `movie_sr_id` int PRIMARY KEY AUTO_INCREMENT,
+  `type` varchar(10),
   `name` varchar(255),
-  `duration` int,
-  `description` varchar(1500),
   `year_released` varchar(4),
-  `country` varchar(255),
+  `duration` int,
   `language` varchar(255),
+  `description` varchar(1500),
+  `country` varchar(255),
   `awards` varchar(355),
   `box_office` varchar(255),
   `production` varchar(355),
@@ -55,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `Person` (
 );
 CREATE TABLE IF NOT EXISTS `Person_role` (
   `person_id` int,
-  `movie_id` int,
+  `movie_sr_id` int,
   `role` varchar(255)
 );
 CREATE TABLE IF NOT EXISTS `Genres` (
@@ -64,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `Genres` (
   CONSTRAINT uc_genre_name UNIQUE (genre_name)
 );
 CREATE TABLE IF NOT EXISTS `Movie_genres` (
-  `movie_ID` int,
+  `movie_sr_ID` int,
   `genre_id` int
 );
 CREATE TABLE IF NOT EXISTS `Reviewer` (
@@ -72,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `Reviewer` (
   `reviewer_name` varchar(255)
 );
 CREATE TABLE IF NOT EXISTS `Ratings` (
-  `movie_ID` int,
+  `movie_sr_ID` int,
   `reviewer_id` int,
   `num_of_votes` varchar(50),
   `imdb_rating` float,
@@ -80,11 +81,11 @@ CREATE TABLE IF NOT EXISTS `Ratings` (
   `omdb_metascore` varchar(50)
 );
 ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `Genres` (`genre_id`);
-ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_ID`) REFERENCES `Movies` (`movie_ID`);
+ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
 ALTER TABLE `Ratings` ADD FOREIGN KEY (`reviewer_id`) REFERENCES `Reviewer` (`reviewer_id`);
-ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_ID`) REFERENCES `Movies` (`movie_ID`);
+ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
 ALTER TABLE `Person_role` ADD FOREIGN KEY (`person_id`) REFERENCES `Person` (`person_id`);
-ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_id`) REFERENCES `Movies` (`movie_ID`);
+ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies&TV` (`movie_sr_id`);
 ;
 """
 

@@ -8,16 +8,21 @@ logging.basicConfig(filename='imdb_log_file.log',
 
 class APIException(Exception):
     """
-    Docstring
+    Created for raising error if page was not found when requesting access for API
     """
     pass
-# Fetch Movie Data
 
+
+# Fetch Movie Data from OMDb API
 
 class ApiQuery:
     """
-    Docstring
+    Class of API querying objects
     """
+
+    def __init__(self, name):
+        self.name = name
+
     def query(self, imdb_movie_id):
         try:
             params = {

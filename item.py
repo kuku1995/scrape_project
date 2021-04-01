@@ -2,11 +2,11 @@ class Item:
     """
     Creating objects of movies data by columns requested by user
     """
-    def __init__(self, imdb_chart_rank, movie_title, year, rating, director, writer, number_of_votes, main_actors,
-                 imdb_movie_id, language, country, awards, duration, box_office, omdb_metascore,
-                 production, genre):
+    def __init__(self, type, imdb_chart_rank, title, year, rating, director, number_of_votes, main_actors, imdb_movie_id,
+                 box_office, omdb_metascore, language, country, awards, duration, production, genre, writer):
+        self.type = type
         self.imdb_chart_rank = imdb_chart_rank
-        self.movie_title = movie_title
+        self.title = title
         self.year = year
         self.rating = rating
         self.director = director
@@ -35,7 +35,7 @@ class Item:
         return ', '.join(output)
 
     def __str__(self):
-        return ((self.imdb_chart_rank + ' --> ' + self.movie_title + '[' + self.year + '] --'
+        return ((self.imdb_chart_rank + ' --> ' + self.title + '[' + self.year + '] --'
                 'IMDB Rating:' + str(self.rating) + '--' + 'Number of voters:' + self.number_of_votes +
                 '-- ' '{Director:' + self.director + ',' 'Starring:' + self.main_actors + ',' 'Language:'
                  + self.language + ',' 'Country' + self.country + '}'))
