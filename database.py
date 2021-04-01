@@ -32,7 +32,7 @@ con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, d
 cur = con.cursor()
 
 q1 = """
-CREATE TABLE IF NOT EXISTS `Movies&TV` (
+CREATE TABLE IF NOT EXISTS `Movies_TV` (
   `movie_sr_id` int PRIMARY KEY AUTO_INCREMENT,
   `type` varchar(10),
   `name` varchar(255),

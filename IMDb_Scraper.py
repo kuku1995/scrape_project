@@ -88,7 +88,7 @@ def scraper(column_names):
         ratings_tb_insert_list.append((imdb_chart_rank, rating, number_of_votes, omdb_metascore))
         # to_person_table.append(main_actors)
 
-    movies_tb_insert_statement = "INSERT INTO Movies&TV (name, type, duration, year_released, awards, box_office, country, language, production) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    movies_tb_insert_statement = "INSERT INTO Movies_TV (name, type, duration, year_released, awards, box_office, country, language, production) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
     ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) VALUES (%s, %s, %s, %s);"
     # person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
 
