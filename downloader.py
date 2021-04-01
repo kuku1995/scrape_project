@@ -34,5 +34,3 @@ class Downloader:
             logging.info(f'Website successfully accessed: {url}')
 
             return response.text
-
-

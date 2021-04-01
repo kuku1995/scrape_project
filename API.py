@@ -6,8 +6,6 @@ logging.basicConfig(filename='imdb_log_file.log',
                     level=logging.INFO)
 
 
-
-
 class APIException(Exception):
     """
     Docstring
@@ -20,7 +18,7 @@ class ApiQuery:
     """
     Docstring
     """
-    def query(imdb_movie_id):
+    def query(self, imdb_movie_id):
         try:
             params = {
                 'i': imdb_movie_id,
@@ -28,4 +26,11 @@ class ApiQuery:
                 'plot': 'full'
             }
             response = requests.get(cfg.API_DATA_URL, params=params).json()
-        except:
+            return response
+
+        except Exception:
+            logging.info('API not accessed successfully')
+            raise APIException(" API not accessed successfully ")
+
+
+   # def query_multiple(self, imdb_movie_ids):

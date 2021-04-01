@@ -1,7 +1,7 @@
 # Website url
 _WEBSITE = 'http://www.imdb.com/chart/top'
 USERNAME = 'root'
-PASSWORD = 'root'
+PASSWORD = 'luli1402'
 HOST = 'localhost'
 
 # API Key for OMDb:

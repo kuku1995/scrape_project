@@ -24,7 +24,7 @@ class Parser:
     def __init__(self, contents):
         self.contents = contents
 
-    def parse_contents(self, column_names):
+    def parse_contents(self, column_names, omdb_api):
         """
         This functions does the actual parsing on the page, extracting all the relevant data and storing it
         in the imdb list.
@@ -61,16 +61,6 @@ class Parser:
         else:
             print('Successfully parsed IMDb')
             logging.info('Successfully parsed IMDb')
-
-        # Tried scraping each movie url as well
-        # movies_length = []
-        # for link in links:
-        #     link = 'https://www.imdb.com/'+link
-        #     access = requests.get(link)
-        #     soup = Beautifulsoup(access.text, 'lxml')
-        #     length = [l.attrs.get('datetime') for l in soup.select('div.subtext time')]
-        #     length_of_movie = length[0][2:]
-        #     movies_length.append(length_of_movie)
 
         imdb = []
 
@@ -125,12 +115,16 @@ class Parser:
             # extracting actors' names
 
             # Parsing additional information from OMDb API:
+            """
             params = {
                 'i': imdb_movie_id,
                 'type': 'movie',
                 'plot': 'full'
+              
             }
-            response = requests.get(cfg.API_DATA_URL, params=params).json()
+              """
+            response = omdb_api.query(imdb_movie_id)
+            #response = requests.get(cfg.API_DATA_URL, params=params).json()
             language = response['Language']
             country = response['Country']
             awards = response['Awards']

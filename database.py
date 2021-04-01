@@ -15,9 +15,7 @@ con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, c
 cur = con.cursor()
 
 q = """
-
-CREATE DATABASE IF NOT EXISTS IMDBScrape;
-
+CREATE DATABASE IF NOT EXISTS IMDBScrape20;
  """
 
 cur.execute(q)
@@ -28,7 +26,7 @@ con.close()
 print('Successfully created IMDBScrape database')
 logging.info('Successfully created IMDBScrape database')
 
-con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db='IMDBScrape', client_flag=CLIENT.MULTI_STATEMENTS,
+con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db='IMDBScrape20', client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
 # Creating the database tables
 cur = con.cursor()
@@ -47,8 +45,6 @@ CREATE TABLE IF NOT EXISTS `Movies` (
   `production` varchar(355),
   CONSTRAINT uc_name_year UNIQUE (name, year_released)
 );
-
-
 CREATE TABLE IF NOT EXISTS `Person` (
   `person_id` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
@@ -57,54 +53,39 @@ CREATE TABLE IF NOT EXISTS `Person` (
   `star_sign` varchar(255),
   `description` varchar(255)
 );
-
-
 CREATE TABLE IF NOT EXISTS `Person_role` (
   `person_id` int,
   `movie_id` int,
   `role` varchar(255)
 );
-
-
 CREATE TABLE IF NOT EXISTS `Genres` (
   `genre_id` int PRIMARY KEY AUTO_INCREMENT,
   `genre_name` varchar(255),
   CONSTRAINT uc_genre_name UNIQUE (genre_name)
 );
-
 CREATE TABLE IF NOT EXISTS `Movie_genres` (
   `movie_ID` int,
   `genre_id` int
 );
-
-
 CREATE TABLE IF NOT EXISTS `Reviewer` (
   `reviewer_id` int PRIMARY KEY AUTO_INCREMENT,
   `reviewer_name` varchar(255)
 );
-
 CREATE TABLE IF NOT EXISTS `Ratings` (
   `movie_ID` int,
   `reviewer_id` int,
   `num_of_votes` varchar(50),
   `imdb_rating` float,
   `imdb_chart_rank` int,
-  `omdb_metascore` int
+  `omdb_metascore` varchar(50)
 );
-
 ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `Genres` (`genre_id`);
-
 ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_ID`) REFERENCES `Movies` (`movie_ID`);
-
 ALTER TABLE `Ratings` ADD FOREIGN KEY (`reviewer_id`) REFERENCES `Reviewer` (`reviewer_id`);
-
 ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_ID`) REFERENCES `Movies` (`movie_ID`);
-
 ALTER TABLE `Person_role` ADD FOREIGN KEY (`person_id`) REFERENCES `Person` (`person_id`);
-
 ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_id`) REFERENCES `Movies` (`movie_ID`);
 ;
-
 """
 
 cur.execute(q1)
