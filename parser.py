@@ -73,15 +73,14 @@ class Parser:
             raw_title = films[i].get_text()
 
             # extracting the movie title only from the movie container
-            if self.name == 'movie_meter':
-                title = raw_title[:raw_title.index('(') - 1].strip()
-            else:
-                movie_or_ser = (' '.join(raw_title.split()).replace('.', ''))
-                if 'movie_title' in column_names:
-                    title = movie_or_ser[len(str(i)) + 1:-7]
-
+            if 'title' in column_names:
+                if self.name == 'movie_meter':
+                    title = raw_title[:raw_title.index('(') - 1].strip()
                 else:
-                    title = None
+                    movie_or_ser = (' '.join(raw_title.split()).replace('.', ''))
+                    title = movie_or_ser[len(str(i)) + 1:-7]
+            else:
+                title = None
 
             # Separating between movies and tv series
             if self.name == 'tv_shows':
@@ -136,7 +135,7 @@ class Parser:
             }
             """
             response = omdb_api.query(imdb_movie_id)
-
+            print(response)
             language = response['Language']
             country = response['Country']
             awards = response['Awards']
