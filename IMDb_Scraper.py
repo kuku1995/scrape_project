@@ -1,15 +1,9 @@
 from downloader import Downloader
-#from parser import Parser
-import logging
+from parser import Parser
 import argparse
 import pymysql.cursors
 from pymysql.constants import CLIENT
-import config as cfg
 from API import ApiQuery
-from bs4 import BeautifulSoup
-import re
-import requests
-from item import Item
 import logging
 import config as cfg
 
