@@ -35,6 +35,7 @@ q1 = """
 CREATE TABLE IF NOT EXISTS `Movies_TV` (
   `movie_sr_id` int PRIMARY KEY AUTO_INCREMENT,
   `type` varchar(10),
+  `chart` varchar(40),
   `name` varchar(255),
   `year_released` varchar(4),
   `duration` int,

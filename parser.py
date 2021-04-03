@@ -1,12 +1,8 @@
 from bs4 import BeautifulSoup
 import re
-import requests
 from item import Item
 import logging
 import config as cfg
-logging.basicConfig(filename='imdb_log_file.log',
-                    format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
-                    level=logging.INFO)
 
 
 class ParserException(Exception):
@@ -21,160 +17,193 @@ class Parser:
     Creating objects of parsers
     """
 
-    def __init__(self, contents, name):
-        self.contents = contents
+    def __init__(self, response, name):
+        self.response = response
         self.name = name
 
-    def parse_contents(self, column_names, omdb_api):
+    def validate_integrity(self, films, crew, imdb_ratings, imdb_num_of_user_ratings):
         """
-        This functions does the actual parsing on the page, extracting all the relevant data and storing it
-        in the imdb list.
-        :param column_names:
-        :return: list of movies data requested by user
+        Validating there is no missing data in our containers
         """
-
-        soup = BeautifulSoup(self.contents, 'lxml')
-        # Using beautiful soup and lxml parser to parse the data from website.
-
-        films = soup.select('td.titleColumn')
-        # <td class="titleColumn"> selects td class to access each container of movies in the list
-        # contains film/series name, year it was released and actors.
-
-        links = [link.attrs.get('href') for link in soup.select('td.titleColumn a')]
-        # gets the specific IMDB URL's for each movie/series in the chart
-
-        crew = [c.attrs.get('title') for c in soup.select('td.titleColumn a')]
-        # gets the starring actors who acted in a particular movie/series
-
-        imdb_ratings = [rating.attrs.get('data-value') for rating in soup.select('td.posterColumn span[name=ir]')]
-        # gets the IMDB rating for each movie/series
-
-        imdb_num_of_user_ratings = [vote.attrs.get('data-value') for vote in
-                                    soup.select('td.posterColumn span[name=nv]')]
-        # The number of users which have given a rating to a particular movie/series
-
         if len(films) == 0 or not (len(films) == len(crew) == len(imdb_ratings) == len(imdb_num_of_user_ratings)):
             logging.error(f'Invalid page or missing data on page {self.name}')
             raise ParserException(f'Could not parse page {self.name} The data given to the parser is invalid.'
                                   'Please check if there is missing data in the page you are trying to parse.')
-        # Verifying there is no missing data from the page we accessed
+            # Verifying there is no missing data from the page we accessed
 
         else:
-            print(f'Successfully parsed IMDb {self.name}, loading data...')
-            logging.info(f'Successfully parsed IMDb {self.name}')
+            logging.info(f'Successfully parsed IMDb {self.name}, loading data...')
 
-        imdb = []
+    def get_data_containers(self, logger, chart):
+        """
+        This functions does the actual parsing on the page, extracting all the relevant data and storing it
+        in the data list.
+        :param logger: for logging
+        :param chart: chart name
+        :return: data containers
+        """
+        try:
 
-        for i in range(0, len(films)):
+            soup = BeautifulSoup(self.response, 'lxml')
+            # Using beautiful soup and lxml parser to parse the data from website.
 
-            imdb_movie_id = links[i][7:-1]
+            films = soup.select('td.titleColumn')
+            # <td class="titleColumn"> selects td class to access each container of movies in the list
+            # contains film/series name, year it was released and actors.
 
-            # getting each movie container from td class (e.g - 1. The Shawshank Redemption (1994))
-            raw_title = films[i].get_text()
+            links = [link.attrs.get('href') for link in soup.select('td.titleColumn a')]
+            # gets the specific IMDB URL's for each movie/series in the chart
 
-            # extracting the movie title only from the movie container
-            if 'title' in column_names:
-                if self.name == 'movie_meter':
+            crew = [c.attrs.get('title') for c in soup.select('td.titleColumn a')]
+            # gets the starring actors who acted in a particular movie/series
+
+            imdb_ratings = [rating.attrs.get('data-value') for rating in soup.select('td.posterColumn span[name=ir]')]
+            # gets the IMDB rating for each movie/series
+
+            imdb_num_of_user_ratings = [vote.attrs.get('data-value') for vote in
+                                        soup.select('td.posterColumn span[name=nv]')]
+            # The number of users which have given a rating to a particular movie/series
+        except IOError:
+            logger.critical(f"Error with page {chart}, unable to extract movie pages id's")
+            raise ParserException(f"Error with page {chart}, unable to extract movie pages id's")
+        try:
+            self.validate_integrity(films, crew, imdb_ratings, imdb_num_of_user_ratings)
+        except IOError:
+            logger.critical(f"Error with page's data, unable to extract movie pages id's")
+            raise ParserException(f"Error with page's data, unable to extract movie pages id's")
+
+        return [films, links, crew, imdb_ratings, imdb_num_of_user_ratings]
+
+    def parse_data(self, container, column_names, omdb_api, chart, logger, stdout_file):
+        """
+        Parsing the data containers, structuring each movie's data into an item/row for database and printing to user.
+        return: list of movies data and lists prepared for database insertion
+        """
+
+        films = container[cfg.FILMS]
+        links = container[cfg.LINKS]
+        crew = container[cfg.CREW]
+        imdb_ratings = container[cfg.IMDB_RATING]
+        imdb_num_of_user_ratings = container[cfg.IMDB_NUM_OF_USER_RATING]
+
+        data = []
+        movies_tb_insert_list = []
+        ratings_tb_insert_list = []
+        person_tb_insert_list = []
+        person_role_tb_insert_list = []
+
+        logger.info(f"Began parsing data from IMDb and OMDb API")
+        try:
+            for i in range(len(films)):
+
+                imdb_movie_id = links[i][7:-1]
+
+                raw_title = films[i].get_text()
+
+                movie_or_ser = ''
+                if self.name == 'MOVIE_METER':
                     title = raw_title[:raw_title.index('(') - 1].strip()
                 else:
                     movie_or_ser = (' '.join(raw_title.split()).replace('.', ''))
                     title = movie_or_ser[len(str(i)) + 1:-7]
-            else:
-                title = None
 
-            # Separating between movies and tv series
-            if self.name == 'tv_shows':
-                type = 'Series'
-            else:
-                type = 'Movie'
+                if self.name == 'TV_SHOWS':
+                    typ = 'Series'
+                else:
+                    typ = 'Movie'
 
-            # Extracting rating values
-            if 'rating' in column_names:
                 rating = round(float(imdb_ratings[i]), 2)
-            else:
-                rating = None
 
-            # extracting the movie/series year only
-            if 'year' in column_names:
                 year = re.search('\\((.*?)\\)', raw_title).group(1)
-            else:
-                year = None
 
-            # extracting the rank of the movie/series in the imdb chart
-            if 'imdb_chart_rank' in column_names:
-                rank = movie_or_ser[:len(str(i)) - (len(movie_or_ser))]
-            else:
-                rank = None
+                chart_rank = movie_or_ser[:len(str(i)) - (len(movie_or_ser))]
 
-            # extracting director names
-            if 'director' in column_names:
-                director = crew[i][0:crew[i].index('(') - 1]
-            else:
-                director = None
+                if self.name != 'TV_SHOWS':
+                    director = crew[i][0:crew[i].index('(') - 1]
 
-            # extracting the number of votes for each movie
-            if 'number_of_votes' in column_names:
                 num_votes = "{:,}".format(int(imdb_num_of_user_ratings[i]))
-            else:
-                num_votes = None
 
+                if self.name != 'TV_SHOWS':
+                    main_actors = crew[i][crew[i].index(')') + 3:].split(',')
+                else:
+                    main_actors = crew[i]
 
-            # extracting actors' names
-            if 'main_actors' in column_names:
-                main_actors = crew[i][crew[i].index(')') + 3:]
-            else:
-                main_actors = None
+                # Parsing additional information from OMDb API:
+                """
+                params = {
+                    'i': imdb_movie_id,
+                    'type': 'movie',
+                    'plot': 'full'
 
-            # Parsing additional information from OMDb API:
-            """
-            params = {
-                'i': imdb_movie_id,
-                'type': 'movie',
-                'plot': 'full'
+                }
+                """
+                response = omdb_api.query(imdb_movie_id)
+                language = (response['Language'])
+                country = (response['Country'])
+                awards = response['Awards']
+                duration = response['Runtime']
+                director = ''
+                if self.name != 'TV_SHOWS':
+                    director = response['Director']
+                else:
+                    director = None
 
-            }
-            """
-            response = omdb_api.query(imdb_movie_id)
-            print(response)
-            language = response['Language']
-            country = response['Country']
-            awards = response['Awards']
-            duration = response['Runtime']
-            writer = response['Writer']
-            if self.name != 'tv_shows':
-                box_office = response['BoxOffice']
-            else:
-                box_office = 'N/A'
-            if self.name != 'tv_shows':
-                production = response['Production']
-            else:
+                if duration != 'N/A':
+                    duration = int(duration[:3])
+                else:
+                    duration = None
 
-                production = 'N/A'
-            metascore = response['Metascore']
-            genre = response['Genre']
-            logging.info('Successfully parsed OMDb API')
+                writer = response['Writer']
 
-            # Creating an object for each movie/series
-            item = Item(
-                type=type,
-                imdb_chart_rank=rank,
-                title=title,
-                year=year,
-                rating=rating,
-                director=director,
-                number_of_votes=num_votes,
-                main_actors=main_actors,
-                imdb_movie_id=imdb_movie_id,
-                language=language,
-                country=country,
-                awards=awards,
-                duration=duration,
-                writer=writer,
-                box_office=box_office,
-                omdb_metascore=metascore,
-                production=production,
-                genre=genre)
+                if writer != 'N/A':
+                    if ',' in writer:
+                        writer = writer.split(',')[0]
+                        if '(' in writer:
+                            writer = writer[:writer.index('(') - 1]
+                    else:
+                        if '(' in writer:
+                            writer = writer[:writer.index('(') - 1]
+                else:
+                    writer = None
+                if self.name != 'TV_SHOWS':
+                    box_office = response['BoxOffice']
+                else:
+                    box_office = None
+                if self.name != 'TV_SHOWS':
+                    production = response['Production']
+                else:
+                    production = None
+                metascore = str(response['Metascore'])
+                genre = response['Genre']
 
-            imdb.append(item)
-            logging.info('Successfully extracted data of columns requested')
-        return imdb
+                # Creating an object for each movie/series
+                item = Item(typ=typ, imdb_chart_rank=chart_rank, title=title, year=year, rating=rating,
+                            director=director, number_of_votes=num_votes, main_actors=main_actors,
+                            imdb_movie_id=imdb_movie_id, language=language, country=country, awards=awards,
+                            duration=duration, writer=writer, box_office=box_office, omdb_metascore=metascore,
+                            production=production, genre=genre, chart=chart)
+
+                print(item.format(column_names))
+                std_log = item.format(column_names)
+                stdout_file.write(std_log)
+
+                data.append(item)
+
+                movies_tb_insert_list.append((title, typ, chart, duration, year, language, awards, box_office, country, production))
+                ratings_tb_insert_list.append((chart_rank, rating, num_votes, metascore))
+                person_tb_insert_list.append(director)
+                person_role_tb_insert_list.append('director')
+                if ',' in main_actors:
+                    for actor in main_actors.split(','):
+                        person_tb_insert_list.append(actor.strip())
+                        person_role_tb_insert_list.append('actor')
+
+                person_tb_insert_list.append(writer)
+                person_role_tb_insert_list.append('writer')
+
+            logger.info(f'Successfully extracted all data from IMDb and OMDb API for {chart}')
+        except IOError:
+            logger.critical(f'Error, unable to extract all data from IMDB and OMDb API.')
+            raise ParserException(f'Error, unable to extract all data from IMDB and OMDb API.')
+
+        return data, movies_tb_insert_list, ratings_tb_insert_list, person_tb_insert_list, person_role_tb_insert_list

@@ -1,8 +1,4 @@
 import requests
-import logging
-logging.basicConfig(filename='imdb_log_file.log',
-                    format='%(asctime)s-%(levelname)s-FILE:%(filename)s-FUNC:%(funcName)s-LINE:%(lineno)d-%(message)s',
-                    level=logging.INFO)
 
 
 class DownloadException(Exception):
@@ -14,11 +10,11 @@ class DownloadException(Exception):
 
 class Downloader:
     """
-    Creating objects of download requests from IMDb
+    Creating objects of access requests from IMDb
     """
 
     @staticmethod
-    def download(url):
+    def download(url, logger):
         """
         Requesting access to the IMDb site and extracting textual content
         """
@@ -27,10 +23,9 @@ class Downloader:
             response = requests.get(url)
             response.raise_for_status()
         except requests.exceptions.HTTPError:
-            logging.error(f'Invalid website access request: {url}')
-            raise DownloadException("Could not find page")
+            logger.critical(f'Invalid URL, unable to scrape site: {url}')
+            raise DownloadException(f'Invalid URL, unable to scrape site: {url}')
         else:
-            print(url, 'Access to site is approved')
-            logging.info(f'Website successfully accessed: {url}')
+            logger.info(f'{url} successfully accessed')
 
             return response.text

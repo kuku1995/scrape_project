@@ -1,16 +1,17 @@
 class Item:
     """
-    Creating objects of movies data by columns requested by user
+    Creating objects of movies data
     """
-    def __init__(self, type, imdb_chart_rank, title, year, rating, director, number_of_votes, main_actors, imdb_movie_id,
-                 box_office, omdb_metascore, language, country, awards, duration, production, genre, writer):
-        self.type = type
+
+    def __init__(self, typ, imdb_chart_rank, title, year, rating, director, number_of_votes, main_actors, imdb_movie_id,
+                 box_office, omdb_metascore, language, country, awards, duration, production, genre, writer, chart):
+        self.typ = typ
         self.imdb_chart_rank = imdb_chart_rank
         self.title = title
         self.year = year
         self.rating = rating
         self.director = director
-        self.writer = writer.split(',')
+        self.writer = writer
         self.number_of_votes = number_of_votes
         self.main_actors = main_actors
         self.imdb_movie_id = imdb_movie_id
@@ -20,8 +21,9 @@ class Item:
         self.duration = duration
         self.box_office = box_office
         self.omdb_metascore = omdb_metascore
-        self.production = production.split(',')
-        self.genre = genre.split(',')
+        self.production = production
+        self.genre = genre
+        self.chart = chart
 
     def format(self, column_names):
         """
@@ -36,8 +38,9 @@ class Item:
 
     def __str__(self):
         return ((self.imdb_chart_rank + ' --> ' + self.title + '[' + self.year + '] --'
-                'IMDB Rating:' + str(self.rating) + '--' + 'Number of voters:' + self.number_of_votes +
-                '-- ' '{Director:' + self.director + ',' 'Starring:' + self.main_actors + ',' 'Language:'
+                                                                                 'IMDB Rating:' + str(
+            self.rating) + '--' + 'Number of voters:' + self.number_of_votes +
+                 '-- ' '{Director:' + self.director + ',' 'Starring:' + self.main_actors + ',' 'Language:'
                  + self.language + ',' 'Country' + self.country + '}'))
 
     def __repr__(self):
