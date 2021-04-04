@@ -1,13 +1,14 @@
 from downloader import Downloader
-from parser import Parser
+from movie_parser import Parser
 import argparse
 import pymysql.cursors
 from pymysql.constants import CLIENT
-from API import ApiQuery
+from OMDb_API import ApiQuery
 import time
 import logging
 import config as cfg
 import sys
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -47,29 +48,38 @@ def scraper(column_names, stdout_file):
         # connect to the database
         con = pymysql.connect(user=cfg.USERNAME, password=cfg.PASSWORD, host=cfg.HOST, db=cfg.DATABASE,
                               client_flag=CLIENT.MULTI_STATEMENTS, cursorclass=pymysql.cursors.DictCursor)
+    """
+    Before every insert query to the database, make another query to pull all records and scan if they have the record
+    they want to insert, and if not then make the insert query
+    add the data only if it not in the db already.
+    """
+    # movies_tb_insert_statement = "INSERT INTO Movies_TV (name, year_released) VALUES (%s, %s);"
+    movies_tb_insert_statement = "INSERT INTO Movies_TV (name, category, chart, duration, year_released, language, awards, box_office," \
+                                 "country, production) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore)" \
+                                  "VALUES (%s, %s, %s, %s);"
+    person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
+    person_role_tb_insert_statement = "INSERT INTO Person_role (role) VALUES (%s);"
 
-        # movies_tb_insert_statement = "INSERT INTO Movies_TV (name, year_released) VALUES (%s, %s);"
-        movies_tb_insert_statement = "INSERT INTO Movies_TV (name, type, chart, duration, year_released, language, awards, box_office," \
-                                     "country, production) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-        ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore)" \
-                                      "VALUES (%s, %s, %s, %s);"
-        person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
-        person_role_tb_insert_statement = "INSERT INTO Person_role (role) VALUES (%s);"
+    cur = con.cursor()
+    try:
+        cur.execute("SELECT name, year_released  FROM Movies_TV")
+        movie_uniques = cur.fetchall()
+        movie_unique_key = [(row['name'], row['year_released']) for row in movie_uniques]
+        movies_tb_insert_list = list(filter(lambda x: (x[0], x[4]) not in movie_unique_key, movies_tb_insert_list))
 
-        cur = con.cursor()
-        try:
-            cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
-            cur.executemany(ratings_tb_insert_statement, ratings_tb_insert_list)
-            cur.executemany(person_tb_insert_statement, person_tb_insert_list)
-            cur.executemany(person_role_tb_insert_statement, person_role_tb_insert_list)
-            con.commit()
-        except pymysql.err.IntegrityError:
-            logging.error(f'Duplicate entries given to DB')
-            print("Did not add duplicated values to DB")
-        else:
-            logging.info('Data successfully added to IMDBScrape Database')
-        chart_finish_time = round(time.perf_counter() - chart_start_time, 2)
-        print(f'Total time for scraping {chart}: {chart_finish_time} seconds')
+        cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
+        cur.executemany(ratings_tb_insert_statement, ratings_tb_insert_list)
+        cur.executemany(person_tb_insert_statement, person_tb_insert_list)
+        cur.executemany(person_role_tb_insert_statement, person_role_tb_insert_list)
+        con.commit()
+    except pymysql.err.IntegrityError:
+        logging.error(f'Duplicate entries given to DB')
+        print("Did not add duplicated values to DB")
+    else:
+        logging.info('Data successfully added to IMDBScrape Database')
+    chart_finish_time = round(time.perf_counter() - chart_start_time, 2)
+    print(f'Total time for scraping {chart}: {chart_finish_time} seconds')
 
 
 def main():
@@ -79,12 +89,12 @@ def main():
     """
     parser = argparse.ArgumentParser(prog='IMDb_Scraper', description='Query the IMDb site')
     parser.add_argument("-c", "--column_name", nargs='+', help='Column Names',
-                        choices=["imdb_chart_rank", "type", "title", "year", "rating", "number_of_votes", "director",
+                        choices=["chart", "imdb_chart_rank", "category", "title", "year", "rating", "number_of_votes", "director",
                                  "main_actors", "language", "country", "awards", "duration", "writer", "box_office",
-                                 "omdb_metascore", "production", "genre", "all"], required=True)
+                                 "omdb_metascore", "production", "genre", "chart", "all"], required=True)
     args = parser.parse_args()
     if 'all' in args.column_name:
-        cols = ["imdb_chart_rank", "type", "title", "year", "rating", "number_of_votes", "director", "main_actors",
+        cols = ["chart", "imdb_chart_rank", "category", "title", "year", "rating", "number_of_votes", "director", "main_actors",
                 "language", "country", "awards", "duration", "writer", "box_office", "omdb_metascore", "production",
                 "genre"]
     else:
