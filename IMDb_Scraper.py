@@ -1,7 +1,7 @@
 from downloader import Downloader
 from movie_parser import Parser
 import argparse
-import pymysql.cursors
+import pymysql
 from pymysql.constants import CLIENT
 from OMDb_API import ApiQuery
 import time
