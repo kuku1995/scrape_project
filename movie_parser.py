@@ -144,7 +144,6 @@ class Parser:
                     'i': imdb_movie_id,
                     'type': 'movie',
                     'plot': 'full'
-
                 }
                 """
                 response = omdb_api.query(imdb_movie_id)
