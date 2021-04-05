@@ -1,5 +1,5 @@
 import logging
-import pymysql.cursors
+import pymysql
 from pymysql.constants import CLIENT
 import config as cfg
 
