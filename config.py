@@ -5,7 +5,7 @@ _TV_SHOWS = 'https://www.imdb.com/chart/toptv'
 USERNAME = 'root'
 PASSWORD = 'root'
 HOST = 'localhost'
-DATABASE = 'IMDbScrape'
+DATABASE = 'imdbscrape'
 BATCHES = 20
 
 # API Key for OMDb:
