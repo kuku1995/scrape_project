@@ -9,7 +9,7 @@ DATABASE = 'IMDbScrape'
 BATCHES = 20
 
 # API Key for OMDb:
-API_KEY = '4393bea4'
+API_KEY = ""
 API_DATA_URL = 'http://www.omdbapi.com/?apikey=' + API_KEY
 
 # Name Indexes for container object

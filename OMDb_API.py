@@ -34,5 +34,4 @@ class ApiQuery:
             logging.info('API not accessed successfully')
             raise APIException(" API not accessed successfully ")
 
-
-   # def query_multiple(self, imdb_movie_ids):
+# TODO def query_multiple(self, imdb_movie_ids):

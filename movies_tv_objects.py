@@ -37,11 +37,9 @@ class Item:
         return ', '.join(output)
 
     def __str__(self):
-        return ((self.imdb_chart_rank + ' --> ' + self.title + '[' + self.year + '] --'
-                                                                                 'IMDB Rating:' + str(
-            self.rating) + '--' + 'Number of voters:' + self.number_of_votes +
-                 '-- ' '{Director:' + self.director + ',' 'Starring:' + self.main_actors + ',' 'Language:'
-                 + self.language + ',' 'Country' + self.country + '}'))
+        return ((self.imdb_chart_rank + ' --> Title:' + self.title + ' --> Year:' + self.year + ' --> IMDB Rating:' +
+                 str(self.rating) + '--> Number of voters:' + self.number_of_votes + '-->{Director:' + self.director +
+                 ',' 'Starring:' + self.main_actors + ',' 'Language:' + self.language + ',' 'Country' + self.country + '}'))
 
     def __repr__(self):
         return self.__str__()

@@ -14,7 +14,7 @@ con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, c
 cur = con.cursor()
 
 q = """
-CREATE DATABASE IF NOT EXISTS IMDbScrape;
+CREATE DATABASE IF NOT EXISTS imdbscrape;
  """
 
 cur.execute(q)
@@ -22,8 +22,8 @@ cur.execute(q)
 con.commit()
 
 con.close()
-print('Successfully created IMDBScrape database')
-logging.info('Successfully created IMDBScrape database')
+print('Successfully created imdbscrape database')
+logging.info('Successfully created imdbscrape database')
 
 con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, db=cfg.DATABASE, client_flag=CLIENT.MULTI_STATEMENTS,
                       cursorclass=pymysql.cursors.DictCursor)
@@ -31,7 +31,7 @@ con = pymysql.connect(host=cfg.HOST, user=cfg.USERNAME, password=cfg.PASSWORD, d
 cur = con.cursor()
 
 q1 = """
-CREATE TABLE IF NOT EXISTS `Movies_TV` (
+CREATE TABLE IF NOT EXISTS `movies_tv` (
   `movie_sr_id` int PRIMARY KEY AUTO_INCREMENT,
   `category` varchar(10),
   `chart` varchar(40),
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `Movies_TV` (
   `production` varchar(355),
   CONSTRAINT uc_name_year UNIQUE (name, year_released)
 );
-CREATE TABLE IF NOT EXISTS `Person` (
+CREATE TABLE IF NOT EXISTS `person` (
   `person_id` int PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
   `birth_date` datetime,
@@ -54,25 +54,25 @@ CREATE TABLE IF NOT EXISTS `Person` (
   `star_sign` varchar(255),
   `description` varchar(255)
 );
-CREATE TABLE IF NOT EXISTS `Person_role` (
+CREATE TABLE IF NOT EXISTS `person_role` (
   `person_id` int,
   `movie_sr_id` int,
   `role` varchar(255)
 );
-CREATE TABLE IF NOT EXISTS `Genres` (
+CREATE TABLE IF NOT EXISTS `genres` (
   `genre_id` int PRIMARY KEY AUTO_INCREMENT,
   `genre_name` varchar(255),
   CONSTRAINT uc_genre_name UNIQUE (genre_name)
 );
-CREATE TABLE IF NOT EXISTS `Movie_genres` (
+CREATE TABLE IF NOT EXISTS `movie_genres` (
   `movie_sr_ID` int,
   `genre_id` int
 );
-CREATE TABLE IF NOT EXISTS `Reviewer` (
+CREATE TABLE IF NOT EXISTS `reviewer` (
   `reviewer_id` int PRIMARY KEY AUTO_INCREMENT,
   `reviewer_name` varchar(255)
 );
-CREATE TABLE IF NOT EXISTS `Ratings` (
+CREATE TABLE IF NOT EXISTS `ratings` (
   `movie_sr_ID` int,
   `reviewer_id` int,
   `num_of_votes` varchar(50),
@@ -80,12 +80,12 @@ CREATE TABLE IF NOT EXISTS `Ratings` (
   `imdb_chart_rank` int,
   `omdb_metascore` varchar(50)
 );
-ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `Genres` (`genre_id`);
-ALTER TABLE `Movie_genres` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
-ALTER TABLE `Ratings` ADD FOREIGN KEY (`reviewer_id`) REFERENCES `Reviewer` (`reviewer_id`);
-ALTER TABLE `Ratings` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
-ALTER TABLE `Person_role` ADD FOREIGN KEY (`person_id`) REFERENCES `Person` (`person_id`);
-ALTER TABLE `Person_role` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `Movies_TV` (`movie_sr_id`);
+ALTER TABLE `movie_genres` ADD FOREIGN KEY (`genre_id`) REFERENCES `genres` (`genre_id`);
+ALTER TABLE `movie_genres` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `movies_tv` (`movie_sr_id`);
+ALTER TABLE `ratings` ADD FOREIGN KEY (`reviewer_id`) REFERENCES `reviewer` (`reviewer_id`);
+ALTER TABLE `ratings` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `movies_tv` (`movie_sr_id`);
+ALTER TABLE `person_role` ADD FOREIGN KEY (`person_id`) REFERENCES `person` (`person_id`);
+ALTER TABLE `person_role` ADD FOREIGN KEY (`movie_sr_id`) REFERENCES `movies_tv` (`movie_sr_id`);
 ;
 """
 
@@ -94,5 +94,5 @@ cur.execute(q1)
 con.commit()
 
 con.close()
-print('Successfully created IMDBScrape tables')
-logging.info('Successfully created IMDBScrape tables')
+print('Successfully created imdbscrape tables')
+logging.info('Successfully created imdbscrape tables')

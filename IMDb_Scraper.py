@@ -53,17 +53,17 @@ def scraper(column_names, stdout_file):
     they want to insert, and if not then make the insert query
     add the data only if it not in the db already.
     """
-    # movies_tb_insert_statement = "INSERT INTO Movies_TV (name, year_released) VALUES (%s, %s);"
-    movies_tb_insert_statement = "INSERT INTO Movies_TV (name, category, chart, duration, year_released, language, awards, box_office," \
-                                 "country, production) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    ratings_tb_insert_statement = "INSERT INTO Ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore)" \
-                                  "VALUES (%s, %s, %s, %s);"
-    person_tb_insert_statement = "INSERT INTO Person (name) VALUES (%s);"
-    person_role_tb_insert_statement = "INSERT INTO Person_role (role) VALUES (%s);"
+    movies_tb_insert_statement = "INSERT INTO movies_tv (name, category, chart, duration, year_released, language, \
+                                  awards, box_office, country, production) \
+                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+    ratings_tb_insert_statement = "INSERT INTO ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) \
+                                   VALUES (%s, %s, %s, %s);"
+    person_tb_insert_statement = "INSERT INTO person (name) VALUES (%s);"
+    person_role_tb_insert_statement = "INSERT INTO person_role (role) VALUES (%s);"
 
     cur = con.cursor()
     try:
-        cur.execute("SELECT name, year_released  FROM Movies_TV")
+        cur.execute("SELECT name, year_released  FROM movies_tv")
         movie_uniques = cur.fetchall()
         movie_unique_key = [(row['name'], row['year_released']) for row in movie_uniques]
         movies_tb_insert_list = list(filter(lambda x: (x[0], x[4]) not in movie_unique_key, movies_tb_insert_list))

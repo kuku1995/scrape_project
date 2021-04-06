@@ -65,7 +65,6 @@ class Parser:
 
             # The number of users which have given a rating to a particular movie/series
 
-
         except IOError:
             logger.critical(f"Error with page {chart}, unable to extract movie pages id's")
             raise ParserException(f"Error with page {chart}, unable to extract movie pages id's")
@@ -84,11 +83,8 @@ class Parser:
         """
 
         films = container[cfg.FILMS]
-        #print(films)
         links = container[cfg.LINKS]
-        #print(links)
         crew = container[cfg.CREW]
-        #print(crew)
         imdb_ratings = container[cfg.IMDB_RATING]
         imdb_num_of_user_ratings = container[cfg.IMDB_NUM_OF_USER_RATING]
 
@@ -130,6 +126,8 @@ class Parser:
 
                 if self.name != 'TV_SHOWS':
                     director = crew[i][0:crew[i].index('(') - 1]
+                else:
+                    director = None
 
                 num_votes = "{:,}".format(int(imdb_num_of_user_ratings[i]))
 
@@ -151,10 +149,6 @@ class Parser:
                 country = (response['Country'])
                 awards = response['Awards']
                 duration = response['Runtime']
-                if self.name != 'TV_SHOWS':
-                    director = response['Director']
-                else:
-                    director = None
 
                 if duration != 'N/A':
                     duration = int(duration[:3])
@@ -197,7 +191,8 @@ class Parser:
 
                 data.append(item)
 
-                movies_tb_insert_list.append((title, category, chart, duration, year, language, awards, box_office, country, production))
+                movies_tb_insert_list.append((title, category, chart, duration, year, language, awards, box_office,
+                                              country, production))
                 ratings_tb_insert_list.append((chart_rank, rating, num_votes, metascore))
                 person_tb_insert_list.append(director)
                 person_role_tb_insert_list.append('director')
