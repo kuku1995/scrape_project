@@ -145,8 +145,9 @@ class Parser:
                 }
                 """
                 response = omdb_api.query(imdb_movie_id)
-                language = (response['Language'])
-                country = (response['Country'])
+                print(response)
+                language = response['Language']
+                country = response['Country']
                 awards = response['Awards']
                 duration = response['Runtime']
 
