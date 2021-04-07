@@ -119,10 +119,7 @@ class Parser:
                 year = re.search('\\((.*?)\\)', raw_title).group(1)
 
                 chart_rank = movie_or_ser[:len(str(i)) - (len(movie_or_ser))]
-                if chart_rank == '':
-                    chart_rank = -1
-                else:
-                    chart_rank = int(chart_rank)
+                chart_rank = int(chart_rank)
 
                 if self.name != 'TV_SHOWS':
                     director = crew[i][0:crew[i].index('(') - 1]
@@ -145,7 +142,6 @@ class Parser:
                 }
                 """
                 response = omdb_api.query(imdb_movie_id)
-                print(response)
                 language = response['Language']
                 country = response['Country']
                 awards = response['Awards']
@@ -170,6 +166,7 @@ class Parser:
                     writer = None
                 if self.name != 'TV_SHOWS':
                     box_office = response['BoxOffice']
+                    box_office = int(box_office[1:])
                 else:
                     box_office = None
                 if self.name != 'TV_SHOWS':
