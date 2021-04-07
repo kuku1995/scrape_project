@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `movies_tv` (
   `description` varchar(1500),
   `country` varchar(255),
   `awards` varchar(355),
-  `box_office` varchar(255),
+  `box_office` int,
   `production` varchar(355),
   CONSTRAINT uc_name_year UNIQUE (name, year_released)
 );
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `reviewer` (
 CREATE TABLE IF NOT EXISTS `ratings` (
   `movie_sr_ID` int,
   `reviewer_id` int,
-  `num_of_votes` varchar(50),
+  `num_of_votes` int,
   `imdb_rating` float,
   `imdb_chart_rank` int,
   `omdb_metascore` varchar(50)

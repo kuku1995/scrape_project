@@ -31,8 +31,8 @@ def scraper(column_names, stdout_file):
     and eventually inserts the dara into the IMDb database.
     """
 
-    charts = [cfg._TOP_MOVIE_CHART, cfg._MOVIE_METER, cfg._TV_SHOWS]
-    names = ['TOP_MOVIE_CHART', 'MOVIE_METER', 'TV_SHOWS']
+    charts = [cfg._TV_SHOWS, cfg._TOP_MOVIE_CHART, cfg._MOVIE_METER]
+    names = ['TV_SHOWS', 'TOP_MOVIE_CHART', 'MOVIE_METER']
 
     logging.info("Created logger for IMDb scraper")
     for index, chart in enumerate(charts):
@@ -64,10 +64,10 @@ def scraper(column_names, stdout_file):
             print("Did not add duplicated values to DB")
         con.close()
         movies_tb_insert_statement = "INSERT INTO movies_tv (name, category, chart, duration, year_released, language, \
-                                    awards, box_office, country, production) \
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+                                     awards, box_office, country, production) \
+                                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
         ratings_tb_insert_statement = "INSERT INTO ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) \
-                                    VALUES (%s, %s, %s, %s);"
+                                      VALUES (%s, %s, %s, %s);"
         person_tb_insert_statement = "INSERT INTO person (name) VALUES (%s);"
         person_role_tb_insert_statement = "INSERT INTO person_role (role) VALUES (%s);"
 

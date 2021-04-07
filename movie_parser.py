@@ -129,6 +129,8 @@ class Parser:
                     director = None
 
                 num_votes = "{:,}".format(int(imdb_num_of_user_ratings[i]))
+                if num_votes != 'N/A':
+                    num_votes = int(num_votes.replace(',', ''))
 
                 if self.name != 'TV_SHOWS':
                     main_actors = crew[i][crew[i].index(')') + 3:].split(',')
@@ -148,8 +150,6 @@ class Parser:
                 country = response['Country']
                 awards = response['Awards']
                 duration = response['Runtime']
-                box_office = response['BoxOffice']
-
                 if duration != 'N/A':
                     duration = int(duration[:3])
                 else:
@@ -168,10 +168,9 @@ class Parser:
                 else:
                     writer = None
                 if self.name != 'TV_SHOWS':
+                    box_office = response['BoxOffice']
                     if box_office != 'N/A':
-                        box_office = int(response['BoxOffice'][1:].replace(',', ''))
-                    else:
-                        box_office = None
+                        box_office = int(box_office[1:].replace(',', ''))
                 else:
                     box_office = None
                 if self.name != 'TV_SHOWS':
