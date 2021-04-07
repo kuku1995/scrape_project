@@ -31,8 +31,8 @@ def scraper(column_names, stdout_file):
     and eventually inserts the dara into the IMDb database.
     """
 
-    charts = [cfg._TV_SHOWS, cfg._TOP_MOVIE_CHART, cfg._MOVIE_METER]
-    names = ['TV_SHOWS', 'TOP_MOVIE_CHART', 'MOVIE_METER']
+    charts = [cfg._TOP_MOVIE_CHART, cfg._MOVIE_METER, cfg._TV_SHOWS]
+    names = ['TOP_MOVIE_CHART', 'MOVIE_METER', 'TV_SHOWS']
 
     logging.info("Created logger for IMDb scraper")
     for index, chart in enumerate(charts):
@@ -45,41 +45,48 @@ def scraper(column_names, stdout_file):
         data, movies_tb_insert_list, ratings_tb_insert_list, person_tb_insert_list, person_role_tb_insert_list = \
             parser.parse_data(container, column_names, api, chart, logger, stdout_file)
 
+        """
+        Before every insert query to the database, make another query to pull all records and scan if they have the record
+        they want to insert, and if not then make the insert query
+        add the data only if it not in the db already.
+        """
+        con = pymysql.connect(user=cfg.USERNAME, password=cfg.PASSWORD, host=cfg.HOST, db=cfg.DATABASE,
+                               client_flag=CLIENT.MULTI_STATEMENTS, cursorclass=pymysql.cursors.DictCursor)
+
+        cur = con.cursor()
+        try:
+            cur.execute("SELECT name, year_released FROM movies_tv")
+            movie_uniques = cur.fetchall()
+            movie_unique_key = [(row['name'], row['year_released']) for row in movie_uniques]
+            movies_tb_insert_list = list(filter(lambda x: (x[0], x[4]) not in movie_unique_key, movies_tb_insert_list))
+        except pymysql.err.IntegrityError:
+            logging.error(f'Duplicate entries given to DB')
+            print("Did not add duplicated values to DB")
+        con.close()
+        movies_tb_insert_statement = "INSERT INTO movies_tv (name, category, chart, duration, year_released, language, \
+                                    awards, box_office, country, production) \
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+        ratings_tb_insert_statement = "INSERT INTO ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) \
+                                    VALUES (%s, %s, %s, %s);"
+        person_tb_insert_statement = "INSERT INTO person (name) VALUES (%s);"
+        person_role_tb_insert_statement = "INSERT INTO person_role (role) VALUES (%s);"
+
         # connect to the database
         con = pymysql.connect(user=cfg.USERNAME, password=cfg.PASSWORD, host=cfg.HOST, db=cfg.DATABASE,
-                              client_flag=CLIENT.MULTI_STATEMENTS, cursorclass=pymysql.cursors.DictCursor)
-    """
-    Before every insert query to the database, make another query to pull all records and scan if they have the record
-    they want to insert, and if not then make the insert query
-    add the data only if it not in the db already.
-    """
-    movies_tb_insert_statement = "INSERT INTO movies_tv (name, category, chart, duration, year_released, language, \
-                                  awards, box_office, country, production) \
-                                  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
-    ratings_tb_insert_statement = "INSERT INTO ratings (imdb_chart_rank, imdb_rating, num_of_votes, omdb_metascore) \
-                                   VALUES (%s, %s, %s, %s);"
-    person_tb_insert_statement = "INSERT INTO person (name) VALUES (%s);"
-    person_role_tb_insert_statement = "INSERT INTO person_role (role) VALUES (%s);"
-
-    cur = con.cursor()
-    try:
-        cur.execute("SELECT name, year_released  FROM movies_tv")
-        movie_uniques = cur.fetchall()
-        movie_unique_key = [(row['name'], row['year_released']) for row in movie_uniques]
-        movies_tb_insert_list = list(filter(lambda x: (x[0], x[4]) not in movie_unique_key, movies_tb_insert_list))
-
-        cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
-        cur.executemany(ratings_tb_insert_statement, ratings_tb_insert_list)
-        cur.executemany(person_tb_insert_statement, person_tb_insert_list)
-        cur.executemany(person_role_tb_insert_statement, person_role_tb_insert_list)
-        con.commit()
-    except pymysql.err.IntegrityError:
-        logging.error(f'Duplicate entries given to DB')
-        print("Did not add duplicated values to DB")
-    else:
-        logging.info('Data successfully added to IMDBScrape Database')
-    chart_finish_time = round(time.perf_counter() - chart_start_time, 2)
-    print(f'Total time for scraping {chart}: {chart_finish_time} seconds')
+                            client_flag=CLIENT.MULTI_STATEMENTS, cursorclass=pymysql.cursors.DictCursor)
+        cur = con.cursor()
+        try:
+            cur.executemany(movies_tb_insert_statement, movies_tb_insert_list)
+            cur.executemany(ratings_tb_insert_statement, ratings_tb_insert_list)
+            cur.executemany(person_tb_insert_statement, person_tb_insert_list)
+            cur.executemany(person_role_tb_insert_statement, person_role_tb_insert_list)
+            con.commit()
+            logging.info('Data successfully added to IMDBScrape Database')
+        except pymysql.err.IntegrityError:
+            logging.error(f'Duplicate entries given to DB')
+            print("Did not add duplicated values to DB")
+        chart_finish_time = round(time.perf_counter() - chart_start_time, 2)
+        print(f'Total time for scraping {chart}: {chart_finish_time} seconds')
 
 
 def main():

@@ -118,8 +118,10 @@ class Parser:
 
                 year = re.search('\\((.*?)\\)', raw_title).group(1)
 
-                chart_rank = int(movie_or_ser[:len(str(i)) - (len(movie_or_ser))])
-                #chart_rank = int(chart_rank)
+                if self.name != 'MOVIE_METER':
+                    chart_rank = int(movie_or_ser[:len(str(i)) - (len(movie_or_ser))])
+                else:
+                    chart_rank = None
 
                 if self.name != 'TV_SHOWS':
                     director = crew[i][0:crew[i].index('(') - 1]
@@ -165,8 +167,10 @@ class Parser:
                 else:
                     writer = None
                 if self.name != 'TV_SHOWS':
-                    box_office = int(response['BoxOffice'][1:].replace(',', ''))
-                    # box_office = int(box_office[1:])
+                    if response['BoxOffice'] != 'N/A':
+                        box_office = int(response['BoxOffice'][1:].replace(',', ''))
+                    else:
+                        box_office = None
                 else:
                     box_office = None
                 if self.name != 'TV_SHOWS':

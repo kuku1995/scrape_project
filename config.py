@@ -3,13 +3,13 @@ _TOP_MOVIE_CHART = 'http://www.imdb.com/chart/top'
 _MOVIE_METER = 'https://www.imdb.com/chart/moviemeter'
 _TV_SHOWS = 'https://www.imdb.com/chart/toptv'
 USERNAME = 'root'
-PASSWORD = 'root'
+PASSWORD = 'luli1402'
 HOST = 'localhost'
 DATABASE = 'imdbscrape'
 BATCHES = 20
 
 # API Key for OMDb:
-API_KEY = ""
+API_KEY = "132489f5"
 API_DATA_URL = 'http://www.omdbapi.com/?apikey=' + API_KEY
 
 # Name Indexes for container object
