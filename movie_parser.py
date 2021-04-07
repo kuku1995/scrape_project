@@ -148,6 +148,7 @@ class Parser:
                 country = response['Country']
                 awards = response['Awards']
                 duration = response['Runtime']
+                box_office = response['BoxOffice']
 
                 if duration != 'N/A':
                     duration = int(duration[:3])
@@ -167,7 +168,7 @@ class Parser:
                 else:
                     writer = None
                 if self.name != 'TV_SHOWS':
-                    if response['BoxOffice'] != 'N/A':
+                    if box_office != 'N/A':
                         box_office = int(response['BoxOffice'][1:].replace(',', ''))
                     else:
                         box_office = None
